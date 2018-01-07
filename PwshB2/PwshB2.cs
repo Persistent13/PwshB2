@@ -19,20 +19,12 @@ namespace PwshB2
         [ValidateNotNullOrEmpty()]
         public PSCredential Credential { get; set; }
 
-        protected override void BeginProcessing()
-        {
-            base.BeginProcessing();
-        }
         protected override void ProcessRecord()
         {
             var acct = B2.AuthorizeAccount(Credential.UserName, Credential.GetNetworkCredential().Password);
             // Save the session data
             B2.SaveSessionData(acct);
             WriteObject(acct);
-        }
-        protected override void EndProcessing()
-        {
-            base.EndProcessing();
         }
     }
 
@@ -43,10 +35,11 @@ namespace PwshB2
     {
         [Parameter(HelpMessage = "The type of bucket to return.", Mandatory = false)]
         [ArgumentCompleter(typeof(BucketTypeCompleter))]
-        public BucketEnum Type { get; set; } = BucketEnum.all;
+        public BucketType Type { get; set; } = BucketType.All;
 
         protected override void BeginProcessing()
         {
+            // Might put filtering options here if they exists on B2 API
             base.BeginProcessing();
         }
         protected override void ProcessRecord()
@@ -69,10 +62,60 @@ namespace PwshB2
                                                                               CommandAst commandAst,
                                                                               IDictionary fakeBoundParameters)
             {
-                return Enum.GetNames(typeof(BucketEnum))
-                    .Where(new WildcardPattern(wordToComplete + "*", WildcardOptions.IgnoreCase).IsMatch)
-                    .Select(x => new CompletionResult(x));
+                return BucketType.List.Select(item => item.ToString()).ToArray()
+                    .Where(new WildcardPattern($"{wordToComplete}*", WildcardOptions.IgnoreCase).IsMatch)
+                    .Select(match => new CompletionResult(match));
             }
+        }
+    }
+
+    [CmdletBinding(PositionalBinding = true)]
+    [Cmdlet(VerbsCommon.New, "B2Bucket")]
+    [OutputType(typeof(Bucket[]))]
+    public class NewB2Bucket : PSCmdlet
+    {
+        [Parameter(HelpMessage = "The name of the new bucket.", Mandatory = true)]
+        public string Name { get; set; }
+
+        // The creation of a bucket is limited to public and private
+        [ValidateSet("Public", "Private")]
+        [ValidateLength(6,25)]
+        [Parameter(HelpMessage = "Bucket type.", Mandatory = false)]
+        public BucketType Type { get; set; } = BucketType.Private;
+
+        protected override void ProcessRecord()
+        {
+            try
+            {
+                var buckets = new List<Bucket> { new Bucket() { bucketName = Name, bucketType = HashMap.FromBucketType[Type] } };
+                WriteObject(B2.CreateBucket(buckets).ToArray());
+            }
+            catch (Exception err)
+            {
+                WriteError(new ErrorRecord(err, "PwshB2NewB2BucketException", ErrorCategory.InvalidResult, null));
+            }
+        }
+    }
+
+    [CmdletBinding(PositionalBinding = true)]
+    [Cmdlet(VerbsCommon.Set, "B2Bucket")]
+    [OutputType(typeof(Bucket[]))]
+    public class SetB2Bucket : PSCmdlet
+    {
+        [Parameter(HelpMessage = "The name of the bucket to change.", Mandatory = true)]
+        public string BucketName { get; set; }
+
+        // The creation of a bucket is limited to public and private
+        [Parameter(HelpMessage = "", Mandatory = false)]
+        [ValidateSet("Public", "Private")]
+        public BucketType Type { get; set; }
+
+        [Parameter(HelpMessage = "", Mandatory = false)]
+        public SwitchParameter RequireRevision { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            throw new NotImplementedException();
         }
     }
 }
