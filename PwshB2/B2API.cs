@@ -54,7 +54,7 @@ namespace PwshB2.Api
             };
             req.AddJsonBody(body);
             req.AddHeader(Constant.Authorization, Session.Instance.accountSession.authorizationToken);
-            var responce = client.Execute<Buckets>(req);
+            var responce = client.Execute<DtoBuckets>(req);
             Guard.Against.RestSharpError(responce);
             Guard.Against.B2Error(responce);
             return responce.Data.buckets;
