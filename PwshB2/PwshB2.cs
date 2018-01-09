@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 using System.Management.Automation;
 using System.Management.Automation.Language;
 using PwshB2.Api;
+using PwshB2.Api.Dto;
 
 namespace PwshB2
 {
     [CmdletBinding(PositionalBinding = true)]
     [Cmdlet(VerbsCommunications.Connect, "B2Service")]
-    [OutputType(typeof(Account))]
+    [OutputType(typeof(DtoAccount))]
     public class ConnectB2Account : PSCmdlet
     {
         [Parameter(HelpMessage = "The AccountId (username) and ApplicationKey (password) for the B2 account.", Mandatory = true)]
@@ -30,7 +31,7 @@ namespace PwshB2
 
     [CmdletBinding(PositionalBinding = true)]
     [Cmdlet(VerbsCommon.Get, "B2Bucket")]
-    [OutputType(typeof(Bucket[]))]
+    [OutputType(typeof(DtoBucket[]))]
     public class GetB2Bucket : PSCmdlet
     {
         [Parameter(HelpMessage = "The type of bucket to return.", Mandatory = false)]
@@ -71,15 +72,16 @@ namespace PwshB2
 
     [CmdletBinding(PositionalBinding = true)]
     [Cmdlet(VerbsCommon.New, "B2Bucket")]
-    [OutputType(typeof(Bucket[]))]
+    [OutputType(typeof(DtoBucket[]))]
     public class NewB2Bucket : PSCmdlet
     {
-        [Parameter(HelpMessage = "The name of the new bucket.", Mandatory = true)]
-        public string Name { get; set; }
+        [Parameter(HelpMessage = "The name of the new bucket.", Mandatory = true,
+            ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
+        [ValidateLength(6, 50)]
+        public string[] Name { get; set; }
 
         // The creation of a bucket is limited to public and private
         [ValidateSet("Public", "Private")]
-        [ValidateLength(6,25)]
         [Parameter(HelpMessage = "Bucket type.", Mandatory = false)]
         public BucketType Type { get; set; } = BucketType.Private;
 
@@ -87,7 +89,12 @@ namespace PwshB2
         {
             try
             {
-                var buckets = new List<Bucket> { new Bucket() { bucketName = Name, bucketType = HashMap.FromBucketType[Type] } };
+                var buckets = new List<DtoBucket>();
+                var _type = HashMap.FromBucketType[Type];
+                foreach (var _name in Name)
+                {
+                    buckets.Add(new DtoBucket() { bucketName = _name, bucketType = _type });
+                }
                 WriteObject(B2.CreateBucket(buckets).ToArray());
             }
             catch (Exception err)
@@ -98,24 +105,28 @@ namespace PwshB2
     }
 
     [CmdletBinding(PositionalBinding = true)]
-    [Cmdlet(VerbsCommon.Set, "B2Bucket")]
-    [OutputType(typeof(Bucket[]))]
-    public class SetB2Bucket : PSCmdlet
+    [Cmdlet(VerbsCommon.Set, "B2BucketType")]
+    [OutputType(typeof(DtoBucket[]))]
+    public class SetB2BucketType : PSCmdlet
     {
-        [Parameter(HelpMessage = "The name of the bucket to change.", Mandatory = true)]
-        public string BucketName { get; set; }
+        [Parameter(HelpMessage = "The name of the bucket to change.", Mandatory = true,
+            ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
+        [ValidateLength(6, 50)]
+        public string[] Name { get; set; }
 
-        // The creation of a bucket is limited to public and private
-        [Parameter(HelpMessage = "", Mandatory = false)]
+        [Parameter(HelpMessage = "Bucket type to set.", Mandatory = false)]
         [ValidateSet("Public", "Private")]
-        public BucketType Type { get; set; }
-
-        [Parameter(HelpMessage = "", Mandatory = false)]
-        public SwitchParameter RequireRevision { get; set; }
+        public BucketType Type { get; set; } = BucketType.Private;
 
         protected override void ProcessRecord()
         {
-            throw new NotImplementedException();
+            var buckets = new List<DtoBucket>();
+            var _type = HashMap.FromBucketType[Type];
+            foreach (var _name in Name)
+            {
+                buckets.Add(new DtoBucket() { bucketType = _type, bucketId = B2.GetBucketIdFromName(_name) });
+            }
+            WriteObject(B2.UpdateBucket(buckets).ToArray());
         }
     }
 }

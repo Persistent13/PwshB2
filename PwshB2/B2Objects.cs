@@ -4,30 +4,6 @@ using Ardalis.SmartEnum;
 
 namespace PwshB2.Api
 {
-    public class Account
-    {
-        public string accountId { get; set; }
-        public string apiUrl { get; set; }
-        public string authorizationToken { get; set; }
-        public string downloadUrl { get; set; }
-        public long recommnededPartSize { get; set; }
-        public long absoluteMinimumPartSize { get; set; }
-    }
-    public class Bucket
-    {
-        public string accountId { get; set; }
-        public string bucketId { get; set; }
-        public Dictionary<string, string> bucketInfo { get; set; }
-        public string bucketName { get; set; }
-        public string bucketType { get; set; }
-        public List<Dictionary<string, string>> corsRules { get; set; }
-        public List<Dictionary<string, string>> lifecycleRule { get; set; }
-        public long revision { get; set; }
-    }
-    public class Buckets
-    {
-        public List<Bucket> buckets { get; set; }
-    }
     internal struct Constant
     {
         public const string BaseApiUrl = "https://api.backblazeb2.com/";
