@@ -37,8 +37,24 @@ namespace PwshB2.Api.Dto
         public List<string> exposeHeaders { get; set; }
         public uint maxAgeSeconds { get; set; }
     }
-    public class Buckets
+    public class DtoBuckets
     {
         public List<DtoBucket> buckets { get; set; }
+    }
+    public class DtoFile
+    {
+        public string fileId { get; set; }
+        public string fileName { get; set; }
+        public uint contentLength { get; set; }
+        public string contentType { get; set; }
+        public string contentSha1 { get; set; }
+        public Dictionary<string, string> fileInfo { get; set; }
+        public string action { get; set; }
+        public long uploadTimestamp { get; set; }
+    }
+    public class DtoFiles
+    {
+        public List<DtoFile> files { get; set; }
+        public string nextFileName { get; set; }
     }
 }
