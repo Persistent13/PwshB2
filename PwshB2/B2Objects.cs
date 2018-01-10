@@ -11,7 +11,8 @@ namespace PwshB2.Api
     }
     internal static class B2ApiResouce
     {
-        public const string BaseUrl = "https://api.backblazeb2.com/";
+        public static readonly Uri BaseUrl = new Uri("https://api.backblazeb2.com/");
+        public const string BaseUrlString = "https://api.backblazeb2.com/";
         public const string AuthorizeAccount = "b2api/v1/b2_authorize_account";
         public const string UpdateBucket = "/b2api/v1/b2_update_bucket";
         public const string CreateBucket = "/b2api/v1/b2_create_bucket";

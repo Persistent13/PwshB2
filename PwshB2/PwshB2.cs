@@ -129,4 +129,23 @@ namespace PwshB2
             WriteObject(B2.UpdateBucket(buckets).ToArray());
         }
     }
+
+    [CmdletBinding(PositionalBinding = true)]
+    [Cmdlet(VerbsCommon.Rename, "B2Bucket")]
+    [OutputType(typeof(DtoBucket))]
+    public class RenameB2Bucket : PSCmdlet
+    {
+        [Parameter(HelpMessage = "Name of the bucket to rename.", Mandatory = true)]
+        [ValidateLength(6, 50)]
+        public string Name { get; set; }
+
+        [Parameter(HelpMessage = "The new name of the bucket.", Mandatory = true)]
+        [ValidateLength(6, 50)]
+        public string NewName { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            WriteObject(B2.RenameBucket(Name, NewName));
+        }
+    }
 }
