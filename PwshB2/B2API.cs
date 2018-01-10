@@ -140,14 +140,13 @@ namespace PwshB2.Api
             var buckets = new List<DtoBucket>();
             foreach (var bucket in bucketsToDelete)
             {
-
+                throw new NotImplementedException();
             }
         }
 
         internal static string GetBucketIdFromName (string bucketName)
         {
-            var buckets = ListBuckets(BucketType.All);
-            return buckets.Find(bucket => bucket.bucketName == bucketName).bucketId;
+            return ListBuckets(BucketType.All).Find(bucket => bucket.bucketName == bucketName).bucketId;
         }
     }
     //The session data, can be updated but not duplicated
