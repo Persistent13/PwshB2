@@ -57,4 +57,10 @@ namespace PwshB2.Api.Dto
         public List<DtoFile> files { get; set; }
         public string nextFileName { get; set; }
     }
+    public class DtoError
+    {
+        public string code { get; set; }
+        public string message { get; set; }
+        public int status { get; set; }
+    }
 }
