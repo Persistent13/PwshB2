@@ -22,7 +22,7 @@ namespace PwshB2.Api
             var req = new RestRequest()
             {
                 Method = Method.GET,
-                Resource = "b2api/v1/b2_authorize_account",
+                Resource = B2ApiResouce.AuthorizeAccount,
                 RequestFormat = DataFormat.Json
             };
             var responce = client.Execute<DtoAccount>(req);
@@ -44,7 +44,7 @@ namespace PwshB2.Api
             var req = new RestRequest()
             {
                 Method = Method.POST,
-                Resource = "/b2api/v1/b2_list_buckets",
+                Resource = B2ApiResouce.ListBuckets,
                 RequestFormat = DataFormat.Json
             };
             var body = new Dictionary<string, string>
@@ -74,7 +74,7 @@ namespace PwshB2.Api
                 var req = new RestRequest()
                 {
                     Method = Method.POST,
-                    Resource = "/b2api/v1/b2_create_bucket",
+                    Resource = B2ApiResouce.CreateBucket,
                     RequestFormat = DataFormat.Json
                 };
                 var body = new Dictionary<string, string>
@@ -105,7 +105,7 @@ namespace PwshB2.Api
                 var req = new RestRequest()
                 {
                     Method = Method.POST,
-                    Resource = "/b2api/v1/b2_update_bucket",
+                    Resource = B2ApiResouce.UpdateBucket,
                     RequestFormat = DataFormat.Json
                 };
                 var body = new Dictionary<string, string>
@@ -123,6 +123,12 @@ namespace PwshB2.Api
                 buckets.Add(responce.Data);
             }
             return buckets;
+        }
+
+        public static List<DtoBucket> RenameBucket (List<DtoBucket> buckets)
+        {
+            var updatedBuckets = new List<DtoBucket>();
+            throw new NotImplementedException();
         }
 
         public static void SetCorsRules ()

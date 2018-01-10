@@ -4,10 +4,36 @@ using Ardalis.SmartEnum;
 
 namespace PwshB2.Api
 {
-    internal struct Constant
+    internal static class Constant
     {
         public const string BaseApiUrl = "https://api.backblazeb2.com/";
         public const string Authorization = "Authorization";
+    }
+    internal static class B2ApiResouce
+    {
+        public const string BaseUrl = "https://api.backblazeb2.com/";
+        public const string AuthorizeAccount = "b2api/v1/b2_authorize_account";
+        public const string UpdateBucket = "/b2api/v1/b2_update_bucket";
+        public const string CreateBucket = "/b2api/v1/b2_create_bucket";
+        public const string ListBuckets = "/b2api/v1/b2_list_buckets";
+        public const string CancelLargeFile = "/b2api/v1/b2_cancel_large_file";
+        public const string DeleteBucket = "/b2api/v1/b2_delete_bucket";
+        public const string DeleteFileVersion = "/b2api/v1/b2_delete_file_version";
+        public const string DownloadFileById = "/b2api/v1/b2_download_file_by_id";
+        public const string DownloadFileByName = "/b2api/v1/b2_download_file_by_name";
+        public const string GetDownloadAuthorization = "/b2api/v1/b2_get_download_authorization";
+        public const string FinishLargeFile = "/b2api/v1/b2_finish_large_file";
+        public const string GetFileInfo = "/b2api/v1/b2_get_file_info";
+        public const string GetUploadPartUrl = "/b2api/v1/b2_get_upload_part_url";
+        public const string GetUploadUrl = "/b2api/v1/b2_get_upload_url";
+        public const string HideFile = "/b2api/v1/b2_hide_file";
+        public const string ListFileNames = "/b2api/v1/b2_list_file_names";
+        public const string ListFileVersions = "/b2api/v1/b2_list_file_versions";
+        public const string ListLargeFileParts = "/b2api/v1/b2_list_parts";
+        public const string ListUnfinishedLargeFiles = "/b2api/v1/b2_list_unfinished_large_files";
+        public const string StartLargeFile = "/b2api/v1/b2_start_large_file";
+        public const string UploadFile = "/b2api/v1/b2_upload_file";
+        public const string UploadLargeFilePart = "/b2api/v1/b2_upload_part";
     }
     public class HashMap
     {
