@@ -1,66 +1,72 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace PwshB2.Api.Dto
 {
-    public class DtoAccount
+    public class Account
     {
-        public string accountId { get; set; }
-        public string apiUrl { get; set; }
-        public string authorizationToken { get; set; }
-        public string downloadUrl { get; set; }
-        public long recommnededPartSize { get; set; }
-        public long absoluteMinimumPartSize { get; set; }
+        public string AccountId { get; set; }
+        [JsonConverter(typeof(string))]
+        public Uri ApiUrl { get; set; }
+        public string AuthorizationToken { get; set; }
+        [JsonConverter(typeof(string))]
+        public Uri DownloadUrl { get; set; }
+        public long RecommendedPartSize { get; set; }
+        public long AbsoluteMinimumPartSize { get; set; }
     }
-    public class DtoBucket
+    public class Bucket
     {
-        public string accountId { get; set; }
-        public string bucketId { get; set; }
-        public Dictionary<string, string> bucketInfo { get; set; }
-        public string bucketName { get; set; }
-        public string bucketType { get; set; }
-        public List<DtoCorsRule> corsRules { get; set; }
-        public List<DtoLifecycleRule> lifecycleRule { get; set; }
-        public long revision { get; set; }
+        public string AccountId { get; set; }
+        public string BucketId { get; set; }
+        public Dictionary<string, string> BucketInfo { get; set; }
+        public string BucketName { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public BucketType BucketType { get; set; }
+        public List<CorsRule> CorsRules { get; set; }
+        public List<LifecycleRule> LifecycleRule { get; set; }
+        public long Revision { get; set; }
     }
-    public class DtoLifecycleRule
+    public class LifecycleRule
     {
-        public uint? daysFromHidingToDeleting { get; set; }
-        public uint? daysFromUploadingToHiding { get; set; }
-        public string fileNamePrefix { get; set; }
+        public uint? DaysFromHidingToDeleting { get; set; }
+        public uint? DaysFromUploadingToHiding { get; set; }
+        public string FileNamePrefix { get; set; }
     }
-    public class DtoCorsRule
+    public class CorsRule
     {
-        public string corsRuleName { get; set; }
-        public List<string> allowedOrigins { get; set; }
-        public List<string> allowedOperations { get; set; }
-        public List<string> allowedHeaders { get; set; }
-        public List<string> exposeHeaders { get; set; }
-        public uint maxAgeSeconds { get; set; }
+        public string CorsRuleName { get; set; }
+        public List<string> AllowedOrigins { get; set; }
+        public List<string> AllowedOperations { get; set; }
+        public List<string> AllowedHeaders { get; set; }
+        public List<string> ExposeHeaders { get; set; }
+        public uint MaxAgeSeconds { get; set; }
     }
     public class DtoBuckets
     {
-        public List<DtoBucket> buckets { get; set; }
+        public List<Bucket> buckets { get; set; }
     }
-    public class DtoFile
+    public class File
     {
-        public string fileId { get; set; }
-        public string fileName { get; set; }
-        public uint contentLength { get; set; }
-        public string contentType { get; set; }
-        public string contentSha1 { get; set; }
-        public Dictionary<string, string> fileInfo { get; set; }
-        public string action { get; set; }
-        public long uploadTimestamp { get; set; }
+        public string FileId { get; set; }
+        public string FileName { get; set; }
+        public uint ContentLength { get; set; }
+        public string ContentType { get; set; }
+        public string ContentSha1 { get; set; }
+        public Dictionary<string, string> FileInfo { get; set; }
+        public string Action { get; set; }
+        public long UploadTimestamp { get; set; }
     }
     public class DtoFiles
     {
-        public List<DtoFile> files { get; set; }
-        public string nextFileName { get; set; }
+        public List<File> Files { get; set; }
+        public string NextFileName { get; set; }
     }
-    public class DtoError
+    public class Error
     {
-        public string code { get; set; }
-        public string message { get; set; }
-        public int status { get; set; }
+        public string Code { get; set; }
+        public string Message { get; set; }
+        public int Status { get; set; }
     }
 }

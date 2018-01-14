@@ -38,4 +38,10 @@ namespace PwshB2.Exceptions
         public B2InvalidLifecycleRuleException (string message) : base(message) { }
         public B2InvalidLifecycleRuleException (string message, Exception inner) : base(message, inner) { }
     }
+    public class B2ObjectNotFound : Exception
+    {
+        public B2ObjectNotFound () { }
+        public B2ObjectNotFound (string message) : base(message) { }
+        public B2ObjectNotFound (string message, Exception inner) : base(message, inner) { }
+    }
 }

@@ -8,13 +8,14 @@ using System.Management.Automation;
 using System.Management.Automation.Language;
 using PwshB2.Api;
 using PwshB2.Api.Dto;
+using PwshB2.Exceptions;
 
 namespace PwshB2
 {
     [CmdletBinding(PositionalBinding = true)]
     [Cmdlet(VerbsCommunications.Connect, "B2Service")]
-    [OutputType(typeof(DtoAccount))]
-    public class ConnectB2Account : PSCmdlet
+    [OutputType(typeof(Account))]
+    public class ConnectB2Service : PSCmdlet
     {
         [Parameter(HelpMessage = "The AccountId (username) and ApplicationKey (password) for the B2 account.", Mandatory = true)]
         [ValidateNotNullOrEmpty()]
@@ -31,7 +32,7 @@ namespace PwshB2
 
     [CmdletBinding(PositionalBinding = true)]
     [Cmdlet(VerbsCommon.Get, "B2Bucket")]
-    [OutputType(typeof(DtoBucket[]))]
+    [OutputType(typeof(Bucket[]))]
     public class GetB2Bucket : PSCmdlet
     {
         [Parameter(HelpMessage = "The type of bucket to return.", Mandatory = false)]
@@ -41,7 +42,7 @@ namespace PwshB2
         protected override void BeginProcessing()
         {
             // Might put filtering options here if they exists on B2 API
-            base.BeginProcessing();
+            // e.g. Name, size, etc.
         }
         protected override void ProcessRecord()
         {
@@ -49,9 +50,17 @@ namespace PwshB2
             {
                 WriteObject(B2.ListBuckets(Type).ToArray());
             }
-            catch (Exception err)
+            catch (B2HttpException err)
             {
                 WriteError(new ErrorRecord(err, "PwshB2GetB2BucketException", ErrorCategory.ConnectionError, null));
+            }
+            catch (B2Exception err)
+            {
+                WriteError(new ErrorRecord(err, "PwshB2GetB2BucketException", ErrorCategory.ConnectionError, null));
+            }
+            catch (Exception err)
+            {
+                WriteError(new ErrorRecord(err, "PwshB2GetB2BucketException", ErrorCategory.InvalidResult, null));
             }
         }
 
@@ -72,7 +81,7 @@ namespace PwshB2
 
     [CmdletBinding(PositionalBinding = true)]
     [Cmdlet(VerbsCommon.New, "B2Bucket")]
-    [OutputType(typeof(DtoBucket[]))]
+    [OutputType(typeof(Bucket[]))]
     public class NewB2Bucket : PSCmdlet
     {
         [Parameter(HelpMessage = "The name of the new bucket.", Mandatory = true,
@@ -87,26 +96,31 @@ namespace PwshB2
 
         protected override void ProcessRecord()
         {
-            try
+            foreach (var _name in Name)
             {
-                var buckets = new List<DtoBucket>();
-                var _type = HashMap.FromBucketType[Type];
-                foreach (var _name in Name)
+                try
                 {
-                    buckets.Add(new DtoBucket() { bucketName = _name, bucketType = _type });
+                    WriteObject(B2.CreateBucket(_name, Type));
                 }
-                WriteObject(B2.CreateBucket(buckets).ToArray());
-            }
-            catch (Exception err)
-            {
-                WriteError(new ErrorRecord(err, "PwshB2NewB2BucketException", ErrorCategory.InvalidResult, null));
+                catch (B2HttpException err)
+                {
+                    WriteError(new ErrorRecord(err, "PwshB2GetB2BucketException", ErrorCategory.ConnectionError, _name));
+                }
+                catch (B2Exception err)
+                {
+                    WriteError(new ErrorRecord(err, "PwshB2GetB2BucketException", ErrorCategory.ConnectionError, _name));
+                }
+                catch (Exception err)
+                {
+                    WriteError(new ErrorRecord(err, "PwshB2NewB2BucketException", ErrorCategory.InvalidResult, _name));
+                }
             }
         }
     }
 
     [CmdletBinding(PositionalBinding = true)]
     [Cmdlet(VerbsCommon.Set, "B2BucketType")]
-    [OutputType(typeof(DtoBucket[]))]
+    [OutputType(typeof(Bucket[]))]
     public class SetB2BucketType : PSCmdlet
     {
         [Parameter(HelpMessage = "The name of the bucket to change.", Mandatory = true,
@@ -120,19 +134,23 @@ namespace PwshB2
 
         protected override void ProcessRecord()
         {
-            var buckets = new List<DtoBucket>();
-            var _type = HashMap.FromBucketType[Type];
             foreach (var _name in Name)
             {
-                buckets.Add(new DtoBucket() { bucketType = _type, bucketId = B2.GetBucketIdFromName(_name) });
+                try
+                {
+                    B2.SetBucketType(_name, Type);
+                }
+                catch (B2ObjectNotFound err)
+                {
+                    WriteError(new ErrorRecord(err, "PwshB2ObjectNotFound", ErrorCategory.ObjectNotFound, _name));
+                }
             }
-            WriteObject(B2.UpdateBucket(buckets).ToArray());
         }
     }
 
     [CmdletBinding(PositionalBinding = true)]
     [Cmdlet(VerbsCommon.Rename, "B2Bucket")]
-    [OutputType(typeof(DtoBucket))]
+    [OutputType(typeof(Bucket))]
     public class RenameB2Bucket : PSCmdlet
     {
         [Parameter(HelpMessage = "Name of the bucket to rename.", Mandatory = true)]
@@ -145,7 +163,8 @@ namespace PwshB2
 
         protected override void ProcessRecord()
         {
-            WriteObject(B2.RenameBucket(Name, NewName));
+            throw new PSNotImplementedException();
+            //WriteObject(B2.RenameBucket(Name, NewName));
         }
     }
 }
