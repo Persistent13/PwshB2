@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace PwshB2.Api.Dto
 {
@@ -22,8 +21,7 @@ namespace PwshB2.Api.Dto
         public string BucketId { get; set; }
         public Dictionary<string, string> BucketInfo { get; set; }
         public string BucketName { get; set; }
-        [JsonConverter(typeof(StringEnumConverter))]
-        public BucketType BucketType { get; set; }
+        public string BucketType { get; set; }
         public List<CorsRule> CorsRules { get; set; }
         public List<LifecycleRule> LifecycleRule { get; set; }
         public long Revision { get; set; }

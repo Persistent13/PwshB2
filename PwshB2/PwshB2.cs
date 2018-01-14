@@ -1,9 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Management.Automation;
 using System.Management.Automation.Language;
 using PwshB2.Api;
@@ -12,6 +10,22 @@ using PwshB2.Exceptions;
 
 namespace PwshB2
 {
+    class BucketTypeCompleter : IArgumentCompleter
+    {
+        IEnumerable<CompletionResult> IArgumentCompleter.CompleteArgument(string commandName,
+                                                                          string parameterName,
+                                                                          string wordToComplete,
+                                                                          CommandAst commandAst,
+                                                                          IDictionary fakeBoundParameters)
+        {
+            var filter = new string[] { BucketType.Public, BucketType.Private };
+            return BucketType.List.Select(item => item.ToString())
+                .Intersect(filter)
+                .Where(new WildcardPattern($"{wordToComplete}*", WildcardOptions.IgnoreCase).IsMatch)
+                .Select(match => new CompletionResult(match));
+        }
+    }
+
     [CmdletBinding(PositionalBinding = true)]
     [Cmdlet(VerbsCommunications.Connect, "B2Service")]
     [OutputType(typeof(Account))]
@@ -63,20 +77,6 @@ namespace PwshB2
                 WriteError(new ErrorRecord(err, "PwshB2GetB2BucketException", ErrorCategory.InvalidResult, null));
             }
         }
-
-        private class BucketTypeCompleter : IArgumentCompleter
-        {
-            IEnumerable<CompletionResult> IArgumentCompleter.CompleteArgument(string commandName,
-                                                                              string parameterName,
-                                                                              string wordToComplete,
-                                                                              CommandAst commandAst,
-                                                                              IDictionary fakeBoundParameters)
-            {
-                return BucketType.List.Select(item => item.ToString()).ToArray()
-                    .Where(new WildcardPattern($"{wordToComplete}*", WildcardOptions.IgnoreCase).IsMatch)
-                    .Select(match => new CompletionResult(match));
-            }
-        }
     }
 
     [CmdletBinding(PositionalBinding = true)]
@@ -89,9 +89,8 @@ namespace PwshB2
         [ValidateLength(6, 50)]
         public string[] Name { get; set; }
 
-        // The creation of a bucket is limited to public and private
-        [ValidateSet("Public", "Private")]
         [Parameter(HelpMessage = "Bucket type.", Mandatory = false)]
+        [ArgumentCompleter(typeof(BucketTypeCompleter))]
         public BucketType Type { get; set; } = BucketType.Private;
 
         protected override void ProcessRecord()
@@ -120,7 +119,6 @@ namespace PwshB2
 
     [CmdletBinding(PositionalBinding = true)]
     [Cmdlet(VerbsCommon.Set, "B2BucketType")]
-    [OutputType(typeof(Bucket[]))]
     public class SetB2BucketType : PSCmdlet
     {
         [Parameter(HelpMessage = "The name of the bucket to change.", Mandatory = true,
@@ -129,7 +127,7 @@ namespace PwshB2
         public string[] Name { get; set; }
 
         [Parameter(HelpMessage = "Bucket type to set.", Mandatory = false)]
-        [ValidateSet("Public", "Private")]
+        [ArgumentCompleter(typeof(BucketTypeCompleter))]
         public BucketType Type { get; set; } = BucketType.Private;
 
         protected override void ProcessRecord()
@@ -149,22 +147,36 @@ namespace PwshB2
     }
 
     [CmdletBinding(PositionalBinding = true)]
-    [Cmdlet(VerbsCommon.Rename, "B2Bucket")]
-    [OutputType(typeof(Bucket))]
-    public class RenameB2Bucket : PSCmdlet
+    [Cmdlet(VerbsCommon.Remove, "B2Bucket")]
+    public class RemoveB2Bucket : PSCmdlet
     {
-        [Parameter(HelpMessage = "Name of the bucket to rename.", Mandatory = true)]
+        [Parameter(HelpMessage = "The name of the bucket to remove.", Mandatory = true,
+            ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
         [ValidateLength(6, 50)]
-        public string Name { get; set; }
+        public string[] Name { get; set; }
 
-        [Parameter(HelpMessage = "The new name of the bucket.", Mandatory = true)]
-        [ValidateLength(6, 50)]
-        public string NewName { get; set; }
 
         protected override void ProcessRecord()
         {
-            throw new PSNotImplementedException();
-            //WriteObject(B2.RenameBucket(Name, NewName));
+            foreach (var _name in Name)
+            {
+                try
+                {
+                    B2.RemoveBucket(_name);
+                }
+                catch (B2HttpException err)
+                {
+                    WriteError(new ErrorRecord(err, "PwshB2RemoveB2BucketException", ErrorCategory.ConnectionError, _name));
+                }
+                catch (B2Exception err)
+                {
+                    WriteError(new ErrorRecord(err, "PwshB2RemoveB2BucketException", ErrorCategory.InvalidOperation, _name));
+                }
+                catch (Exception err)
+                {
+                    WriteError(new ErrorRecord(err, "PwshB2RemoveB2BucketException", ErrorCategory.InvalidResult, _name));
+                }
+            }
         }
     }
 }

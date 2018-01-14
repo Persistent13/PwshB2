@@ -126,15 +126,15 @@ namespace PwshB2.Api
             return resp.Data;
         }
 
-        public static List<Bucket> RenameBucket (List<Bucket> buckets)
+        public static void RemoveBucket (string name)
         {
-            var updatedBuckets = new List<Bucket>();
-            throw new NotImplementedException();
+            var body = new Dictionary<string, string>
+            {
+                { "accountId", Session.Instance.accountSession.AccountId },
+                { "bucketId", GetBucketIdFromName(name) }
+            };
+            ExecuteB2Request<Bucket>(body, B2Resouce.DeleteBucket);
         }
-        //public static List<DtoBucket> RenameBucket ()
-        //{
-
-        //}
 
         public static void SetCorsRules ()
         {
@@ -148,11 +148,7 @@ namespace PwshB2.Api
 
         public static void DeleteBucket (List<Bucket> bucketsToDelete)
         {
-            var buckets = new List<Bucket>();
-            foreach (var bucket in bucketsToDelete)
-            {
-                throw new NotImplementedException();
-            }
+            throw new NotImplementedException();
         }
 
         internal static string GetBucketIdFromName (string bucketName)
