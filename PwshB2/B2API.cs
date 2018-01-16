@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using RestSharp;
 using RestSharp.Authenticators;
@@ -11,7 +10,18 @@ namespace PwshB2.Api
 {
     public class B2
     {
-        //Run this first, used to get Account object that is used for auth
+        /// <summary>
+        /// Used to get authorization to the B2 service as well as various other API minutia.
+        /// </summary>
+        /// <remarks>
+        /// Authorization will expire after some time, rerun this method to re-establish authorization.
+        /// </remarks>
+        /// <param name="userName">The AccountId for the B2 account.</param>
+        /// <param name="password">The ApplicationKey for the B2 account.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">Throw when the userName or password parameters are empty or null.</exception>
+        /// <exception cref="B2HttpException">Thrown when there is an HTTP level issue communicating with the B2 service.</exception>
+        /// <exception cref="B2Exception">Thrown when a B2 service issue occurs.</exception>
         public static Account AuthorizeAccount (string userName, string password)
         {
             Guard.Against.NullOrEmpty(userName, nameof(userName));
@@ -32,10 +42,17 @@ namespace PwshB2.Api
             return responce.Data;
         }
 
-        //This needs to be run in order to set the credentials to use for all B2 actions
+        /// <summary>
+        /// This needs to be run in order to set the credentials to use for all B2 actions
+        /// </summary>
+        /// <param name="account">The account object returned by <c>AuthorizeAccount</c></param>
         public static void SaveSessionData (Account account) => Session.Instance.accountSession = account;
 
-        //Used to return all bucket associated with an account
+        /// <summary>
+        /// Used to return all buckets associated with an account.
+        /// </summary>
+        /// <param name="type">The bucket type to return.</param>
+        /// <returns></returns>
         public static List<Bucket> ListBuckets (BucketType type)
         {
             var body = new Dictionary<string, string>
@@ -45,8 +62,16 @@ namespace PwshB2.Api
             return ExecuteB2Request<DtoBuckets>(body, B2Resouce.ListBuckets).buckets;
         }
 
+        /// <summary>
+        /// Creates a new bucket.
+        /// </summary>
+        /// <param name="name">The new name of the bucket. A name must be alphanumeric, at least six characters, and a max of fifty characters.</param>
+        /// <param name="type">Only public and private types are valid when creating a bucket.</param>
+        /// <returns></returns>
         public static Bucket CreateBucket (string name, BucketType type)
         {
+            Guard.Against.B2NameError(name);
+            Guard.Against.B2BucketTypeError(type);
             Guard.Against.NullOrEmpty(name, nameof(name));
             var body = new Dictionary<string, string>
             {
@@ -55,37 +80,6 @@ namespace PwshB2.Api
                 { "bucketType", HashMap.FromBucketType[type] }
             };
             return ExecuteB2Request<Bucket>(body, B2Resouce.CreateBucket);
-        }
-
-        private static IEnumerable<Bucket> UpdateBucket (List<Bucket> bucketsToUpdate)
-        {
-            if (bucketsToUpdate.Count == 0) { throw new B2InvalidCountException(""); }
-            foreach (var bucket in bucketsToUpdate)
-            {
-                var client = new RestClient()
-                {
-                    BaseUrl = Session.Instance.accountSession.ApiUrl
-                };
-                var req = new RestRequest()
-                {
-                    Method = Method.POST,
-                    Resource = B2Resouce.UpdateBucket,
-                    RequestFormat = DataFormat.Json
-                };
-                var body = new Dictionary<string, string>
-                {
-                    { "accountId", Session.Instance.accountSession.AccountId }
-                };
-                if (!string.IsNullOrEmpty(bucket.BucketName)) { body.Add("bucketName", bucket.BucketName); }
-                if (!string.IsNullOrEmpty(bucket.BucketType)) { body.Add("bucketType", bucket.BucketType); }
-                if (!string.IsNullOrEmpty(bucket.BucketId)) { body.Add("bucketId", bucket.BucketId); }
-                req.AddJsonBody(body);
-                req.AddHeader(Constant.Authorization, Session.Instance.accountSession.AuthorizationToken);
-                var responce = client.Execute<Bucket>(req);
-                Guard.Against.RestSharpError(responce);
-                Guard.Against.B2Error(responce);
-                yield return responce.Data;
-            }
         }
 
         public static void SetBucketType (string name, BucketType type)
