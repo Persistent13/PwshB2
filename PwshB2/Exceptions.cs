@@ -44,4 +44,10 @@ namespace PwshB2.Exceptions
         public B2ObjectNotFound (string message) : base(message) { }
         public B2ObjectNotFound (string message, Exception inner) : base(message, inner) { }
     }
+    public class B2BucketTypeError : Exception
+    {
+        public B2BucketTypeError() { }
+        public B2BucketTypeError(string message) : base(message) { }
+        public B2BucketTypeError(string message, Exception inner) : base(message, inner) { }
+    }
 }

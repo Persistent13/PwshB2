@@ -1,9 +1,11 @@
 ﻿using RestSharp;
 using Newtonsoft.Json;
+using PwshB2.Api;
 using PwshB2.Api.Dto;
 using PwshB2.Exceptions;
-using System;
+using PwshB2.Util;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Ardalis.GuardClauses
 {
@@ -25,6 +27,29 @@ namespace Ardalis.GuardClauses
             {
                 var error = JsonConvert.DeserializeObject<Error>(input.Content);
                 throw new B2Exception($"Error code '{error.Code}'. Error message: {error.Message}");
+            }
+        }
+        public static void B2NameError(this IGuardClause guardClause, string name)
+        {
+            if (name.Length < 6)
+            {
+                throw new B2NameException("A bucket name must be longer than five characters.");
+            }
+            if (name.Length > 50)
+            {
+                throw new B2NameException("A bucket name must be shorter than fifty-one characters.");
+            }
+            if (!name.All(c => IsValidBucketCharacters(c)))
+            {
+                throw new B2NameException("A bucket name must consist of alphanumeric characters only.");
+            }
+        }
+        private static bool IsValidBucketCharacters (char c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+        public static void B2BucketTypeError(this IGuardClause guardClause, BucketType type)
+        {
+            if (type != BucketType.Public || type != BucketType.Private)
+            {
+                throw new B2BucketTypeError("A bucket can only be private or public in this context.");
             }
         }
         public static void RestSharpError(this IGuardClause guardClause, IRestResponse input)
