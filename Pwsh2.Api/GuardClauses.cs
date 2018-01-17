@@ -43,7 +43,7 @@ namespace Ardalis.GuardClauses
                 throw new B2NameException("A bucket name must consist of alphanumeric characters only.");
             }
         }
-        private static bool IsValidBucketCharacters (char c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+        private static bool IsValidBucketCharacters (char c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '-';
         public static void B2BucketTypeError(this IGuardClause guardClause, BucketType type)
         {
             if (type != BucketType.Public || type != BucketType.Private)
