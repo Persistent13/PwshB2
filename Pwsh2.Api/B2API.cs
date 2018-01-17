@@ -59,7 +59,7 @@ namespace PwshB2.Api
             {
                 { "accountId", Session.Instance.accountSession.AccountId }
             };
-            return ExecuteB2Request<DtoBuckets>(body, B2Resouce.ListBuckets).buckets;
+            return ExecuteB2Request<DtoBuckets>(body, B2Resouce.ListBuckets).Buckets;
         }
 
         /// <summary>
@@ -97,8 +97,15 @@ namespace PwshB2.Api
             }
         }
 
+        /// <summary>
+        /// A helper method to run B2 REST requests.
+        /// </summary>
+        /// <typeparam name="T">The DTO object to return.</typeparam>
+        /// <param name="body"></param>
+        /// <param name="resource"></param>
+        /// <returns></returns>
         private static T ExecuteB2Request<T> (Dictionary<string, string> body, B2Resouce resource)
-            where T : new()
+            where T : IDto, new()
         {
             Guard.Against.Null(body, nameof(body));
             Guard.Against.EmptyDictionary(body, nameof(body));

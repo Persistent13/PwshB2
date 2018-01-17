@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using PwshB2.Api;
 using PwshB2.Api.Dto;
 using PwshB2.Exceptions;
-using PwshB2.Util;
 using System.Collections.Generic;
 using System.Linq;
 

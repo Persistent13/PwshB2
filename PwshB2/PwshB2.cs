@@ -27,7 +27,7 @@ namespace PwshB2
     }
 
     [CmdletBinding(PositionalBinding = true)]
-    [Cmdlet(VerbsCommunications.Connect, "B2Service")]
+    [Cmdlet(VerbsCommunications.Connect, "B2Service", ConfirmImpact = ConfirmImpact.None)]
     [OutputType(typeof(Account))]
     public class ConnectB2Service : PSCmdlet
     {
@@ -37,10 +37,17 @@ namespace PwshB2
 
         protected override void ProcessRecord()
         {
-            var acct = B2.AuthorizeAccount(Credential.UserName, Credential.GetNetworkCredential().Password);
-            // Save the session data
-            B2.SaveSessionData(acct);
-            WriteObject(acct);
+            try
+            {
+                var acct = B2.AuthorizeAccount(Credential.UserName, Credential.GetNetworkCredential().Password);
+                // Save the session data
+                B2.SaveSessionData(acct);
+                WriteObject(acct);
+            }
+            catch
+            {
+
+            }
         }
     }
 
@@ -118,7 +125,7 @@ namespace PwshB2
     }
 
     [CmdletBinding(PositionalBinding = true)]
-    [Cmdlet(VerbsCommon.Set, "B2BucketType")]
+    [Cmdlet(VerbsCommon.Set, "B2BucketType", ConfirmImpact = ConfirmImpact.High)]
     public class SetB2BucketType : PSCmdlet
     {
         [Parameter(HelpMessage = "The name of the bucket to change.", Mandatory = true,
@@ -136,7 +143,10 @@ namespace PwshB2
             {
                 try
                 {
-                    B2.SetBucketType(_name, Type);
+                    if(ShouldProcess(_name, $"Change bucket type to: {Type}"))
+                    {
+                        B2.SetBucketType(_name, Type);
+                    }
                 }
                 catch (B2ObjectNotFound err)
                 {
@@ -147,7 +157,7 @@ namespace PwshB2
     }
 
     [CmdletBinding(PositionalBinding = true)]
-    [Cmdlet(VerbsCommon.Remove, "B2Bucket")]
+    [Cmdlet(VerbsCommon.Remove, "B2Bucket", ConfirmImpact = ConfirmImpact.High)]
     public class RemoveB2Bucket : PSCmdlet
     {
         [Parameter(HelpMessage = "The name of the bucket to remove.", Mandatory = true,
@@ -162,7 +172,10 @@ namespace PwshB2
             {
                 try
                 {
-                    B2.RemoveBucket(_name);
+                    if(ShouldProcess(_name, "Remove bucket."))
+                    {
+                        B2.RemoveBucket(_name);
+                    }
                 }
                 catch (B2HttpException err)
                 {

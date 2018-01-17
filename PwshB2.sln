@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PwshB2", "PwshB2\PwshB2.csproj", "{C1C66079-E891-4C3B-86CF-A6D88B50B442}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PwshB2 API Tests", "PwshB2 API Tests\PwshB2 API Tests.csproj", "{3173E569-4020-4384-AFBC-E7A2335069A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pwsh2.Api", "Pwsh2.Api\Pwsh2.Api.csproj", "{FE6633C3-700B-4D3D-989B-50AD768B32D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{C1C66079-E891-4C3B-86CF-A6D88B50B442}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1C66079-E891-4C3B-86CF-A6D88B50B442}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1C66079-E891-4C3B-86CF-A6D88B50B442}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3173E569-4020-4384-AFBC-E7A2335069A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3173E569-4020-4384-AFBC-E7A2335069A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3173E569-4020-4384-AFBC-E7A2335069A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3173E569-4020-4384-AFBC-E7A2335069A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE6633C3-700B-4D3D-989B-50AD768B32D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE6633C3-700B-4D3D-989B-50AD768B32D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE6633C3-700B-4D3D-989B-50AD768B32D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE6633C3-700B-4D3D-989B-50AD768B32D2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
