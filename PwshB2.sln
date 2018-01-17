@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PwshB2", "PwshB2\PwshB2.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pwsh2.Api", "Pwsh2.Api\Pwsh2.Api.csproj", "{FE6633C3-700B-4D3D-989B-50AD768B32D2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PwshB2.Api.Tests", "PwshB2.Api.Tests\PwshB2.Api.Tests.csproj", "{AD143402-10A5-4EFF-8863-7FC7DB018EFA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{FE6633C3-700B-4D3D-989B-50AD768B32D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE6633C3-700B-4D3D-989B-50AD768B32D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE6633C3-700B-4D3D-989B-50AD768B32D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD143402-10A5-4EFF-8863-7FC7DB018EFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD143402-10A5-4EFF-8863-7FC7DB018EFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD143402-10A5-4EFF-8863-7FC7DB018EFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD143402-10A5-4EFF-8863-7FC7DB018EFA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
