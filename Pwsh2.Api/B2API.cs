@@ -159,15 +159,14 @@ namespace PwshB2.Api
             throw new NotImplementedException();
         }
 
-        public List<File> ListFiles(string name, string filterPrefix)
+        public List<File> ListFiles(string bucketName, string filterPrefix)
         {
             DtoFiles returnData;
             var files = new List<File>();
             var body = new Dictionary<string, string>
             {
-                { "", "" }
+                { "bucketId", GetBucketIdFromName(bucketName) }
             };
-            string bucketId = GetBucketIdFromName(name);
             if(!string.IsNullOrEmpty(filterPrefix))
             {
                 body.Add(B2FileParameter.Prefix, filterPrefix);
