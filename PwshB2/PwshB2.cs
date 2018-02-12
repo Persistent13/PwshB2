@@ -26,168 +26,171 @@ namespace PwshB2
         }
     }
 
-    [CmdletBinding(PositionalBinding = true)]
-    [Cmdlet(VerbsCommunications.Connect, "B2Service", ConfirmImpact = ConfirmImpact.None)]
-    [OutputType(typeof(Account))]
-    public class ConnectB2Service : PSCmdlet
+    public class Test
     {
-        [Parameter(HelpMessage = "The AccountId (username) and ApplicationKey (password) for the B2 account.", Mandatory = true)]
-        [ValidateNotNullOrEmpty()]
-        public PSCredential Credential { get; set; }
+        private static B2 _b2client;
 
-        protected override void ProcessRecord()
+        [CmdletBinding(PositionalBinding = true)]
+        [Cmdlet(VerbsCommunications.Connect, "B2Service", ConfirmImpact = ConfirmImpact.None)]
+        [OutputType(typeof(Account))]
+        public class ConnectB2Service : PSCmdlet
         {
-            try
-            {
-                var acct = B2.AuthorizeAccount(Credential.UserName, Credential.GetNetworkCredential().Password);
-                // Save the session data
-                B2.SaveSessionData(acct);
-                WriteObject(acct);
-            }
-            catch
-            {
+            [Parameter(HelpMessage = "The AccountId (username) and ApplicationKey (password) for the B2 account.", Mandatory = true)]
+            [ValidateNotNullOrEmpty()]
+            public PSCredential Credential { get; set; }
 
-            }
-        }
-    }
-
-    [CmdletBinding(PositionalBinding = true)]
-    [Cmdlet(VerbsCommon.Get, "B2Bucket")]
-    [OutputType(typeof(Bucket[]))]
-    public class GetB2Bucket : PSCmdlet
-    {
-        [Parameter(HelpMessage = "The type of bucket to return.", Mandatory = false)]
-        [ArgumentCompleter(typeof(BucketTypeCompleter))]
-        public BucketType Type { get; set; } = BucketType.All;
-
-        protected override void BeginProcessing()
-        {
-            // Might put filtering options here if they exists on B2 API
-            // e.g. Name, size, etc.
-        }
-        protected override void ProcessRecord()
-        {
-            try
-            {
-                WriteObject(B2.ListBuckets(Type).ToArray());
-            }
-            catch (B2HttpException err)
-            {
-                WriteError(new ErrorRecord(err, "PwshB2GetB2BucketException", ErrorCategory.ConnectionError, null));
-            }
-            catch (B2Exception err)
-            {
-                WriteError(new ErrorRecord(err, "PwshB2GetB2BucketException", ErrorCategory.ConnectionError, null));
-            }
-            catch (Exception err)
-            {
-                WriteError(new ErrorRecord(err, "PwshB2GetB2BucketException", ErrorCategory.InvalidResult, null));
-            }
-        }
-    }
-
-    [CmdletBinding(PositionalBinding = true)]
-    [Cmdlet(VerbsCommon.New, "B2Bucket")]
-    [OutputType(typeof(Bucket[]))]
-    public class NewB2Bucket : PSCmdlet
-    {
-        [Parameter(HelpMessage = "The name of the new bucket.", Mandatory = true,
-            ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
-        [ValidateLength(6, 50)]
-        public string[] Name { get; set; }
-
-        [Parameter(HelpMessage = "Bucket type.", Mandatory = false)]
-        [ArgumentCompleter(typeof(BucketTypeCompleter))]
-        public BucketType Type { get; set; } = BucketType.Private;
-
-        protected override void ProcessRecord()
-        {
-            foreach (var _name in Name)
+            protected override void ProcessRecord()
             {
                 try
                 {
-                    WriteObject(B2.CreateBucket(_name, Type));
+                    _b2client = new B2(Credential.UserName, Credential.GetNetworkCredential().Password);
+                    WriteObject(Session.Instance.accountSession);
+                }
+                catch
+                {
+                    throw new Exception();
+                }
+            }
+        }
+
+        [CmdletBinding(PositionalBinding = true)]
+        [Cmdlet(VerbsCommon.Get, "B2Bucket")]
+        [OutputType(typeof(Bucket[]))]
+        public class GetB2Bucket : PSCmdlet
+        {
+            [Parameter(HelpMessage = "The type of bucket to return.", Mandatory = false)]
+            [ArgumentCompleter(typeof(BucketTypeCompleter))]
+            public BucketType Type { get; set; } = BucketType.All;
+
+            protected override void BeginProcessing()
+            {
+                // Might put filtering options here if they exists on B2 API
+                // e.g. Name, size, etc.
+            }
+            protected override void ProcessRecord()
+            {
+                try
+                {
+                    WriteObject(_b2client.ListBuckets(Type).ToArray());
                 }
                 catch (B2HttpException err)
                 {
-                    WriteError(new ErrorRecord(err, "PwshB2GetB2BucketException", ErrorCategory.ConnectionError, _name));
+                    WriteError(new ErrorRecord(err, "PwshB2GetB2BucketException", ErrorCategory.ConnectionError, null));
                 }
                 catch (B2Exception err)
                 {
-                    WriteError(new ErrorRecord(err, "PwshB2GetB2BucketException", ErrorCategory.ConnectionError, _name));
+                    WriteError(new ErrorRecord(err, "PwshB2GetB2BucketException", ErrorCategory.ConnectionError, null));
                 }
                 catch (Exception err)
                 {
-                    WriteError(new ErrorRecord(err, "PwshB2NewB2BucketException", ErrorCategory.InvalidResult, _name));
+                    WriteError(new ErrorRecord(err, "PwshB2GetB2BucketException", ErrorCategory.InvalidResult, null));
                 }
             }
         }
-    }
 
-    [CmdletBinding(PositionalBinding = true)]
-    [Cmdlet(VerbsCommon.Set, "B2BucketType", ConfirmImpact = ConfirmImpact.High)]
-    public class SetB2BucketType : PSCmdlet
-    {
-        [Parameter(HelpMessage = "The name of the bucket to change.", Mandatory = true,
-            ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
-        [ValidateLength(6, 50)]
-        public string[] Name { get; set; }
-
-        [Parameter(HelpMessage = "Bucket type to set.", Mandatory = false)]
-        [ArgumentCompleter(typeof(BucketTypeCompleter))]
-        public BucketType Type { get; set; } = BucketType.Private;
-
-        protected override void ProcessRecord()
+        [CmdletBinding(PositionalBinding = true)]
+        [Cmdlet(VerbsCommon.New, "B2Bucket")]
+        [OutputType(typeof(Bucket[]))]
+        public class NewB2Bucket : PSCmdlet
         {
-            foreach (var _name in Name)
+            [Parameter(HelpMessage = "The name of the new bucket.", Mandatory = true,
+                ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
+            [ValidateLength(6, 50)]
+            public string[] Name { get; set; }
+
+            [Parameter(HelpMessage = "Bucket type.", Mandatory = false)]
+            [ArgumentCompleter(typeof(BucketTypeCompleter))]
+            public BucketType Type { get; set; } = BucketType.Private;
+
+            protected override void ProcessRecord()
             {
-                try
+                foreach (var _name in Name)
                 {
-                    if(ShouldProcess(_name, $"Change bucket type to: {Type}"))
+                    try
                     {
-                        B2.SetBucketType(_name, Type);
+                        WriteObject(_b2client.CreateBucket(_name, Type));
                     }
-                }
-                catch (B2ObjectNotFound err)
-                {
-                    WriteError(new ErrorRecord(err, "PwshB2ObjectNotFound", ErrorCategory.ObjectNotFound, _name));
+                    catch (B2HttpException err)
+                    {
+                        WriteError(new ErrorRecord(err, "PwshB2GetB2BucketException", ErrorCategory.ConnectionError, _name));
+                    }
+                    catch (B2Exception err)
+                    {
+                        WriteError(new ErrorRecord(err, "PwshB2GetB2BucketException", ErrorCategory.ConnectionError, _name));
+                    }
+                    catch (Exception err)
+                    {
+                        WriteError(new ErrorRecord(err, "PwshB2NewB2BucketException", ErrorCategory.InvalidResult, _name));
+                    }
                 }
             }
         }
-    }
 
-    [CmdletBinding(PositionalBinding = true)]
-    [Cmdlet(VerbsCommon.Remove, "B2Bucket", ConfirmImpact = ConfirmImpact.High)]
-    public class RemoveB2Bucket : PSCmdlet
-    {
-        [Parameter(HelpMessage = "The name of the bucket to remove.", Mandatory = true,
-            ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
-        [ValidateLength(6, 50)]
-        public string[] Name { get; set; }
-
-
-        protected override void ProcessRecord()
+        [CmdletBinding(PositionalBinding = true)]
+        [Cmdlet(VerbsCommon.Set, "B2BucketType", ConfirmImpact = ConfirmImpact.High)]
+        public class SetB2BucketType : PSCmdlet
         {
-            foreach (var _name in Name)
+            [Parameter(HelpMessage = "The name of the bucket to change.", Mandatory = true,
+                ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
+            [ValidateLength(6, 50)]
+            public string[] Name { get; set; }
+
+            [Parameter(HelpMessage = "Bucket type to set.", Mandatory = false)]
+            [ArgumentCompleter(typeof(BucketTypeCompleter))]
+            public BucketType Type { get; set; } = BucketType.Private;
+
+            protected override void ProcessRecord()
             {
-                try
+                foreach (var _name in Name)
                 {
-                    if(ShouldProcess(_name, "Remove bucket."))
+                    try
                     {
-                        B2.RemoveBucket(_name);
+                        if (ShouldProcess(_name, $"Change bucket type to: {Type}"))
+                        {
+                            _b2client.SetBucketType(_name, Type);
+                        }
+                    }
+                    catch (B2ObjectNotFound err)
+                    {
+                        WriteError(new ErrorRecord(err, "PwshB2ObjectNotFound", ErrorCategory.ObjectNotFound, _name));
                     }
                 }
-                catch (B2HttpException err)
+            }
+        }
+
+        [CmdletBinding(PositionalBinding = true)]
+        [Cmdlet(VerbsCommon.Remove, "B2Bucket", ConfirmImpact = ConfirmImpact.High)]
+        public class RemoveB2Bucket : PSCmdlet
+        {
+            [Parameter(HelpMessage = "The name of the bucket to remove.", Mandatory = true,
+                ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
+            [ValidateLength(6, 50)]
+            public string[] Name { get; set; }
+
+
+            protected override void ProcessRecord()
+            {
+                foreach (var _name in Name)
                 {
-                    WriteError(new ErrorRecord(err, "PwshB2RemoveB2BucketException", ErrorCategory.ConnectionError, _name));
-                }
-                catch (B2Exception err)
-                {
-                    WriteError(new ErrorRecord(err, "PwshB2RemoveB2BucketException", ErrorCategory.InvalidOperation, _name));
-                }
-                catch (Exception err)
-                {
-                    WriteError(new ErrorRecord(err, "PwshB2RemoveB2BucketException", ErrorCategory.InvalidResult, _name));
+                    try
+                    {
+                        if (ShouldProcess(_name, "Remove bucket."))
+                        {
+                            _b2client.RemoveBucket(_name);
+                        }
+                    }
+                    catch (B2HttpException err)
+                    {
+                        WriteError(new ErrorRecord(err, "PwshB2RemoveB2BucketException", ErrorCategory.ConnectionError, _name));
+                    }
+                    catch (B2Exception err)
+                    {
+                        WriteError(new ErrorRecord(err, "PwshB2RemoveB2BucketException", ErrorCategory.InvalidOperation, _name));
+                    }
+                    catch (Exception err)
+                    {
+                        WriteError(new ErrorRecord(err, "PwshB2RemoveB2BucketException", ErrorCategory.InvalidResult, _name));
+                    }
                 }
             }
         }
