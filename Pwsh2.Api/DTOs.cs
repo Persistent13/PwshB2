@@ -25,7 +25,7 @@ namespace PwshB2.Api.Dto
         public string BucketId { get; set; }
         public Dictionary<string, string> BucketInfo { get; set; }
         public string BucketName { get; set; }
-        public BucketType BucketType { get; set; }
+        public string BucketType { get; set; }
         public List<CorsRule> CorsRules { get; set; }
         public List<LifecycleRule> LifecycleRule { get; set; }
         public long Revision { get; set; }
