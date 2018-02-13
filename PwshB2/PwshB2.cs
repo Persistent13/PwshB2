@@ -167,7 +167,6 @@ namespace PwshB2
             [ValidateLength(6, 50)]
             public string[] Name { get; set; }
 
-
             protected override void ProcessRecord()
             {
                 foreach (var _name in Name)
@@ -190,6 +189,41 @@ namespace PwshB2
                     catch (Exception err)
                     {
                         WriteError(new ErrorRecord(err, "PwshB2RemoveB2BucketException", ErrorCategory.InvalidResult, _name));
+                    }
+                }
+            }
+        }
+
+        [CmdletBinding(PositionalBinding = true)]
+        [Cmdlet(VerbsCommon.Get, "B2File", ConfirmImpact = ConfirmImpact.None)]
+        [OutputType(typeof(File))]
+        public class GetB2Files : PSCmdlet
+        {
+            [Parameter(HelpMessage = "The name of the bucket to retrieve files from.", Mandatory = true)]
+            [ValidateLength(6, 50)]
+            public string[] Name { get; set; }
+
+            [Parameter(HelpMessage = "Number to limit returned resultes at. Default is 1000.", Mandatory = false)]
+            public uint ResultSize { get; set; } = 1000;
+
+            [Parameter(HelpMessage = "Files returned will be limited to those with the given prefix.", Mandatory = false)]
+            public string FilePrefixFilter { get; set; }
+
+            [Parameter(HelpMessage = "Files returned will be limited to those within the top folder, or any one subfolder.", Mandatory = false)]
+            public string FolderDelimiterFilter { get; set; }
+
+            [Parameter(HelpMessage = "The first file name to return.", Mandatory = false)]
+            public string StartFileName { get; set; }
+
+            protected override void ProcessRecord()
+            {
+                foreach (var _name in Name)
+                {
+                    PagingParameters.
+                    var files = _b2client.ListItems(_name, FilePrefixFilter, FolderDelimiterFilter, StartFileName, ResultSize);
+                    foreach (var file in files)
+                    {
+                        WriteObject(file);
                     }
                 }
             }
