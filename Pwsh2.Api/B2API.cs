@@ -159,17 +159,48 @@ namespace PwshB2.Api
             throw new NotImplementedException();
         }
 
-        public List<File> ListFiles(string bucketName, string filterPrefix)
+        /// <summary>
+        /// List files and folders in a bucket
+        /// </summary>
+        /// <param name="name">
+        /// The name of the bucket. A name must be alphanumeric, at least six characters, and a max of fifty characters.
+        /// </param>
+        /// <param name="prefix">
+        /// Files returned will be limited to those with the given prefix. Defaults to the empty string, which matches all files.
+        /// </param>
+        /// <param name="delimiter">
+        /// Files returned will be limited to those within the top folder, or any one subfolder. Defaults to NULL.
+        /// Folder names will also be returned. The delimiter character will be used to "break" file names into folders.
+        /// </param>
+        /// <param name="startFileName">
+        /// The first file name to return. If there is a file with this name, it will be returned in the list.
+        /// If not, the first file name after this the first one after this name.
+        /// </param>
+        /// <param name="maxFileCount">
+        /// The maximum number of files to return from this call. The default value is 100, and the maximum is 10000.
+        /// Passing in 0 means to use the default of 100.
+        /// </param>
+        /// <returns></returns>
+        public List<File> ListItems(string name, string prefix, string delimiter, string startFileName, uint maxFileCount)
         {
             DtoFiles returnData;
             var files = new List<File>();
             var body = new Dictionary<string, string>
             {
-                { "bucketId", GetBucketIdFromName(bucketName) }
+                { "bucketId", GetBucketIdFromName(name) },
+                { "maxFileCount", maxFileCount.ToString() }
             };
-            if(!string.IsNullOrEmpty(filterPrefix))
+            if(!string.IsNullOrEmpty(prefix))
             {
-                body.Add(B2FileParameter.Prefix, filterPrefix);
+                body.Add(B2FileParameter.Prefix, prefix);
+            }
+            if(!string.IsNullOrEmpty(startFileName))
+            {
+                body.Add(B2FileParameter.StartFileName, startFileName);
+            }
+            if(!string.IsNullOrEmpty(delimiter))
+            {
+                body.Add(B2FileParameter.Delimiter, delimiter);
             }
             do
             {
